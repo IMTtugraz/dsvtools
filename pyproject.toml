@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dsvtools"
+description = "Tools to read MRI simulation results stored as .dsv files"
+dependencies = ["numpy", "argparse"]
+version = "0.0.1"
+license = {file = "LICENSE"}
+authors = [{ name = "Philip Schaten", email = "philip.schaten@tugraz.at" }]
+
