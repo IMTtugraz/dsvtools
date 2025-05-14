@@ -15,9 +15,7 @@ class LineParser:
     # States
     START = "start"
     INFO_BLOCK = "info_block"
-    BLOCK = "block"
     MDH = "mdh_block"
-    MECO = "meco"
 
     # Types
     Block = "event block start and duration"
@@ -32,7 +30,7 @@ class LineParser:
     info_block_end_ex = r"^#INFO-END$"
     adc_start_ex = r"^adc MeasHeader (?P<start>[0-9]*) (?P<duration>[0-9]*)$"
     adc_value_ex = r"^(?P<key>[^:]+) *: (?P<value>[^;]+)"
-    rf_value_ex = r"^\|\s+(?P<start>\d+) \| \[\S+\]:\s+[\d.]+\/\s+(?P<duration>\d+)\s+\|.*$"
+    rf_value_ex = r"^\|\s+(?P<start>\d+) \| \[\S+\]:\s+[\d.]+\/\s*(?P<duration>\d+)\s+\|.*$"
 
 
     def __init__(self):
@@ -40,14 +38,12 @@ class LineParser:
 
     def parse(self, line):
 
-        if self.state == LineParser.BLOCK or self.state == LineParser.MECO:
+        if self.state == LineParser.START:
             if match := re.match(LineParser.adc_start_ex, line):
                 self.state = LineParser.MDH
                 d = match.groupdict()
                 return LineParser.Adc, dict(start = int(d['start']), duration = int(d['duration']))
-
-        if self.state == LineParser.START or self.state == LineParser.MECO:
-            if match := re.match(LineParser.info_block_start_ex, line):
+            elif match := re.match(LineParser.info_block_start_ex, line):
                 d = match.groupdict()
                 self.state = LineParser.INFO_BLOCK
                 return LineParser.Block, dict(start = int(d['start']), duration = int(d['duration']))
@@ -59,7 +55,7 @@ class LineParser:
 
         if self.state == LineParser.INFO_BLOCK:
             if re.match(LineParser.info_block_end_ex, line):
-                self.state = LineParser.BLOCK
+                self.state = LineParser.START
 
         if self.state == LineParser.MDH:
             if match := re.match(LineParser.adc_value_ex, line):
@@ -67,7 +63,7 @@ class LineParser:
                 d['key'] = d['key'].strip()
                 return LineParser.Mdh_value, d
             elif re.match(LineParser.block_start_ex, line):
-                self.state = LineParser.MECO
+                self.state = LineParser.START
             else:
                 return LineParser.Error, "Found neither MDH Key-Value Pair nor End of MDH in MDH context."
 
