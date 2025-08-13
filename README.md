@@ -1,3 +1,5 @@
+**The main repository has moved to: https://gitlab.tugraz.at/ibi/mrirecon/software/dsv-tools**
+
 # DSV Tools
 
 Python scripts to parse simulation results for Siemens MRI sequences.
